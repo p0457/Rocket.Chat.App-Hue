@@ -7,6 +7,7 @@ import { SettingType } from '@rocket.chat/apps-engine/definition/settings';
 import { HueCommand } from './commands/HueCommand';
 import { OAuthWebhookEndpooint } from './endpoints/oauthWebhook';
 import { ApiVisibility, ApiSecurity } from '@rocket.chat/apps-engine/definition/api';
+import { HueLoginCommand } from './commands/HueLoginCommand';
 
 export class HueApp extends App {
     constructor(info: IAppInfo, logger: ILogger) {
@@ -60,6 +61,37 @@ export class HueApp extends App {
         i18nDescription: 'customize_clientsecret_description',
       });
 
+      await configuration.settings.provideSetting({
+        id: 'hue_appid',
+        type: SettingType.STRING,
+        packageValue: '',
+        required: true,
+        public: false,
+        i18nLabel: 'customize_appid',
+        i18nDescription: 'customize_appid_description',
+      });
+
+      await configuration.settings.provideSetting({
+        id: 'hue_deviceid',
+        type: SettingType.STRING,
+        packageValue: '',
+        required: true,
+        public: false,
+        i18nLabel: 'customize_deviceid',
+        i18nDescription: 'customize_deviceid_description',
+      });
+
+      await configuration.settings.provideSetting({
+        id: 'hue_devicename',
+        type: SettingType.STRING,
+        packageValue: '',
+        required: true,
+        public: false,
+        i18nLabel: 'customize_devicename',
+        i18nDescription: 'customize_devicename_description',
+      });
+
       await configuration.slashCommands.provideSlashCommand(new HueCommand(this));
+      await configuration.slashCommands.provideSlashCommand(new HueLoginCommand(this));
     }
 }

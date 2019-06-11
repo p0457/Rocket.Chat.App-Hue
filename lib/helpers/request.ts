@@ -1,4 +1,4 @@
-import { Md5 } from "./ts-md5/md5";
+import { Md5 } from './ts-md5/md5';
 
 export function calculateDigestResponse(clientId: string, clientSecret: string, realm: string, verb: string, path: string, nonce: string) {
   const preHash1 = `${clientId}:${realm}:${clientSecret}`;

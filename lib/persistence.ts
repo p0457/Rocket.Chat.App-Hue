@@ -20,4 +20,24 @@ export class AppPersistence {
 
     return result ? (result as any).token : undefined;
   }
+
+  public async setAuthAttempts(authObj): Promise<void> {
+    authObj = JSON.stringify(authObj);
+    const miscAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, 'hue-authattempt');
+
+    await this.persistence.updateByAssociations([miscAssociation], { authObj }, true);
+  }
+
+  public async getAuthAttempts(): Promise<any> {
+    const miscAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, 'hue-authattempt');
+
+    const [result] = await this.persistenceRead.readByAssociations([miscAssociation]);
+
+    const actualResult = result ? (result as any).authObj : undefined;
+    if (!actualResult) {
+      return [];
+    } else {
+      return JSON.parse(actualResult);
+    }
+  }
 }
