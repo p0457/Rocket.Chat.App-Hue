@@ -21,6 +21,22 @@ export class AppPersistence {
     return result ? (result as any).token : undefined;
   }
 
+  public async setUserRefreshToken(token: string, user: IUser): Promise<void> {
+    const userAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.USER, user.id);
+    const typeAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, 'hue-refresh-token');
+
+    await this.persistence.updateByAssociations([userAssociation, typeAssociation], { token }, true);
+  }
+
+  public async getUserRefreshToken(user: IUser): Promise<string | undefined> {
+    const userAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.USER, user.id);
+    const typeAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, 'hue-refresh-token');
+
+    const [result] = await this.persistenceRead.readByAssociations([userAssociation, typeAssociation]);
+
+    return result ? (result as any).token : undefined;
+  }
+
   public async setAuthAttempts(authObj): Promise<void> {
     authObj = JSON.stringify(authObj);
     const miscAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, 'hue-authattempt');

@@ -104,6 +104,7 @@ export class OAuthWebhookEndpooint extends ApiEndpoint {
       }
 
       const token = content.access_token;
+      const refreshToken = content.refresh_token;
 
       let text = '';
 
@@ -115,6 +116,7 @@ export class OAuthWebhookEndpooint extends ApiEndpoint {
       }
 
       await persistence.setUserToken(token, user);
+      await persistence.setUserRefreshToken(refreshToken, user);
 
       // Remove the auth attempt from persistence
       currentAuthAttempts = currentAuthAttempts.filter((authAttempt) => {
