@@ -1,10 +1,10 @@
 import { IHttp, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { IMessageAttachmentField } from '@rocket.chat/apps-engine/definition/messages';
 import { ISlashCommand, SlashCommandContext } from '@rocket.chat/apps-engine/definition/slashcommands';
+import { HueApp } from '../HueApp';
 import * as msgHelper from '../lib/helpers/messageHelper';
 import usage from '../lib/helpers/usage';
 import { AppPersistence } from '../lib/persistence';
-import { HueApp } from '../HueApp';
 
 export class HueCommand implements ISlashCommand {
   public command = 'hue';
