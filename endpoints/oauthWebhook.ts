@@ -108,11 +108,18 @@ export class OAuthWebhookEndpooint extends ApiEndpoint {
 
       let text = '';
 
-      let expiryDate: Date;
       if (tokenResponse.headers && tokenResponse.headers.date && content.access_token_expires_in && !isNaN(content.access_token_expires_in)) {
+        let expiryDate: Date;
         expiryDate = new Date(tokenResponse.headers.date);
         expiryDate.setSeconds(expiryDate.getSeconds() + Number(content.access_token_expires_in));
         text += `*Token expires *${expiryDate} _(${timeSince(expiryDate.toString())})_`;
+
+        if (content.refresh_token_expires_in && !isNaN(content.refresh_token_expires_in)) {
+          let refreshExpiryDate: Date;
+          refreshExpiryDate = new Date(tokenResponse.headers.date);
+          refreshExpiryDate.setSeconds(refreshExpiryDate.getSeconds() + Number(content.refresh_token_expires_in));
+          text += `\n*Refresh Token expires *${refreshExpiryDate} _(${timeSince(refreshExpiryDate.toString())})_`;
+        }
       }
 
       await persistence.setUserToken(token, user);
