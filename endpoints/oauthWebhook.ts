@@ -26,14 +26,15 @@ export class OAuthWebhookEndpooint extends ApiEndpoint {
         return authAttempt.authId === request.query.state;
       });
       if (!userAuthAttempt) {
-        return this.success(); // TODO: Send a message to the user of failure
+        return this.success(); // No message to send, no clue who started process
       }
 
       const user = await read.getUserReader().getByUsername(userAuthAttempt.userName);
       const room = userAuthAttempt.room;
 
       if (!request || !request.query || !request.query.code || !request.query.state) {
-        return this.success(); // TODO: Send a message to the user of failure
+        await msgHelper.sendNotification('Failed to login!', read, modify, user, room);
+        return this.success();
       }
 
       const clientId = await read.getEnvironmentReader().getSettings().getValueById('hue_clientid');
@@ -55,7 +56,13 @@ export class OAuthWebhookEndpooint extends ApiEndpoint {
       let tokenResponse = await http.post(tokenUrl, {params});
 
       if (!tokenResponse || !tokenResponse.headers || !tokenResponse.headers['www-authenticate']) {
-        return this.success(); // TODO: Send a message to the user of failure
+        // Remove the auth attempt from persistence
+        currentAuthAttempts = currentAuthAttempts.filter((authAttempt) => {
+          return authAttempt.userName !== user.username;
+        });
+        await persistence.setAuthAttempts(currentAuthAttempts);
+        await msgHelper.sendNotification('Failed to login!', read, modify, user, room);
+        return this.success();
       }
       const digestQuery = tokenResponse.headers['www-authenticate'];
 
@@ -76,12 +83,24 @@ export class OAuthWebhookEndpooint extends ApiEndpoint {
       tokenResponse = await http.post(tokenUrl, {params, headers});
 
       if (!tokenResponse || tokenResponse.statusCode !== 200 || !tokenResponse.content) {
-        return this.success(); // TODO: Send a message to the user of failure
+        // Remove the auth attempt from persistence
+        currentAuthAttempts = currentAuthAttempts.filter((authAttempt) => {
+          return authAttempt.userName !== user.username;
+        });
+        await persistence.setAuthAttempts(currentAuthAttempts);
+        await msgHelper.sendNotification('Failed to login!', read, modify, user, room);
+        return this.success();
       }
 
       const content = JSON.parse(tokenResponse.content);
       if (!content.access_token) {
-        return this.success(); // TODO: Send a message to the user of failure
+        // Remove the auth attempt from persistence
+        currentAuthAttempts = currentAuthAttempts.filter((authAttempt) => {
+          return authAttempt.userName !== user.username;
+        });
+        await persistence.setAuthAttempts(currentAuthAttempts);
+        await msgHelper.sendNotification('Failed to login!', read, modify, user, room);
+        return this.success();
       }
 
       const token = content.access_token;
