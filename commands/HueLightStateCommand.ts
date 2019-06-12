@@ -178,7 +178,7 @@ export class HueLightStateCommand implements ISlashCommand {
       return;
     }
 
-    await lightIds.forEach(async (lightId) => {
+    lightIds.forEach(async (lightId) => {
       const url = `https://api.meethue.com/bridge/${whitelistId}/lights/${lightId}/state`;
 
       let lightResponse;
