@@ -1,5 +1,5 @@
 import { IHttp, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
-import { MessageActionType, MessageProcessingType } from '@rocket.chat/apps-engine/definition/messages';
+import { MessageActionType, MessageProcessingType, MessageActionButtonsAlignment } from '@rocket.chat/apps-engine/definition/messages';
 import { ISlashCommand, SlashCommandContext } from '@rocket.chat/apps-engine/definition/slashcommands';
 import { HueApp } from '../HueApp';
 import { uuidv4 } from '../lib/helpers/guidCreator';
@@ -269,6 +269,7 @@ export class HueLightStateCommand implements ISlashCommand {
           msg_processing_type: MessageProcessingType.RespondWithMessage,
         },
       ],
+      actionButtonsAlignment: MessageActionButtonsAlignment.HORIZONTAL,
     }, read, modify, context.getSender(), context.getRoom());
     return;
   }
