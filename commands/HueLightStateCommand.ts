@@ -211,6 +211,7 @@ export class HueLightStateCommand implements ISlashCommand {
           return;
         }
         if (Array.isArray(content) && content[0].error !== undefined) {
+          console.log(`Error occurred for light id ${lightId}!`, content[0].error);
           await msgHelper.sendNotification(`Error occurred for light id ${lightId}!`, read, modify, context.getSender(), context.getRoom());
           return;
         }

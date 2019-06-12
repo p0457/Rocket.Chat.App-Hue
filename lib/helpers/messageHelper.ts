@@ -155,7 +155,8 @@ export async function sendLights(lights, read: IRead, modify: IModify, user: IUs
     const actions = new Array<IMessageAction>();
 
     const stateChangeCommand = `/hue-light-state ${light.id} on=${light.state.on} bri=${light.state.bri} ` +
-      `hue=${light.state.hue} sat=${light.state.sat} alert=${light.state.alert} cie=${light.state.xy.join(':')} `;
+      `hue=${light.state.hue} sat=${light.state.sat} alert=${light.state.alert === 'none' ? false : true} ` +
+      `cie=${light.state.xy.join(':')} `;
 
     actions.push({
       type: MessageActionType.BUTTON,
