@@ -1,13 +1,13 @@
 import {
   IConfigurationExtend, IEnvironmentRead, ILogger,
 } from '@rocket.chat/apps-engine/definition/accessors';
+import { ApiSecurity, ApiVisibility } from '@rocket.chat/apps-engine/definition/api';
 import { App } from '@rocket.chat/apps-engine/definition/App';
 import { IAppInfo } from '@rocket.chat/apps-engine/definition/metadata';
 import { SettingType } from '@rocket.chat/apps-engine/definition/settings';
 import { HueCommand } from './commands/HueCommand';
-import { OAuthWebhookEndpooint } from './endpoints/oauthWebhook';
-import { ApiVisibility, ApiSecurity } from '@rocket.chat/apps-engine/definition/api';
 import { HueLoginCommand } from './commands/HueLoginCommand';
+import { OAuthWebhookEndpooint } from './endpoints/oauthWebhook';
 
 export class HueApp extends App {
     constructor(info: IAppInfo, logger: ILogger) {
