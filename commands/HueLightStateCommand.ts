@@ -94,13 +94,14 @@ export class HueLightStateCommand implements ISlashCommand {
     const cieRegex = /cie=(.*?) /gm;
     const cieRegexResult = cieRegex.exec(stateModifiers);
     const cieText = cieRegexResult === null ? '' : cieRegexResult[1];
-    const cie = cieText ? cieText.split(':') : undefined;
-    if (cie !== undefined && Array.isArray(cie) && cie.length < 2) {
+    const cieTemp = cieText ? cieText.split(':') : undefined;
+    const cie = new Array<number>();
+    if (cieTemp !== undefined && Array.isArray(cieTemp) && cieTemp.length < 2) {
       await msgHelper.sendUsage(read, modify, context.getSender(), context.getRoom(), this.command, `'cie' must contain two values!`);
       return;
     }
-    if (cie !== undefined && Array.isArray(cie)) {
-      await cie.forEach(async (cieCoordinate) => {
+    if (cieTemp !== undefined && Array.isArray(cieTemp)) {
+      await cieTemp.forEach(async (cieCoordinate) => {
         const cieCoordinateNumber = Number(cieCoordinate);
         if (isNaN(cieCoordinateNumber)) {
           await msgHelper.sendUsage(read, modify, context.getSender(), context.getRoom(), this.command, `'cie' coordinates must be numbers!`);
@@ -108,6 +109,8 @@ export class HueLightStateCommand implements ISlashCommand {
         } else if (cieCoordinateNumber > 1) {
           await msgHelper.sendUsage(read, modify, context.getSender(), context.getRoom(), this.command, `'cie' coordinates be between 0 and 1!`);
           return;
+        } else {
+          cie.push(cieCoordinateNumber);
         }
       });
     }
@@ -115,7 +118,7 @@ export class HueLightStateCommand implements ISlashCommand {
     const alertRegex = /alert=(.*?) /gm;
     const alertRegexResult = alertRegex.exec(stateModifiers);
     const alertText = alertRegexResult === null ? '' : alertRegexResult[1];
-    const alert = alertText.toLowerCase() === 'true' ? true : alertText.toLowerCase() === 'false' ? false : undefined;
+    const alert = alertText.toLowerCase() === 'true' ? 'lselect' : alertText.toLowerCase() === 'false' ? 'none' : undefined;
     if (alertText && alert === undefined) {
       await msgHelper.sendUsage(read, modify, context.getSender(), context.getRoom(), this.command, `Failed to parse 'alert' state value!`);
       return;
@@ -195,8 +198,6 @@ export class HueLightStateCommand implements ISlashCommand {
           },
         });
 
-        console.log('****lightResponse1', lightResponse);
-
         if (lightResponse.statusCode === 401) {
           await msgHelper.sendTokenExpired(read, modify, context.getSender(), context.getRoom());
           return;
@@ -224,8 +225,6 @@ export class HueLightStateCommand implements ISlashCommand {
           },
           data: payload,
         });
-
-        console.log('****lightResponse2', payload, lightResponse);
 
         if (lightResponse.statusCode === 401) {
           await msgHelper.sendTokenExpired(read, modify, context.getSender(), context.getRoom());

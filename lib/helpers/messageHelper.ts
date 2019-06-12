@@ -166,6 +166,42 @@ export async function sendLights(lights, read: IRead, modify: IModify, user: IUs
       msg_processing_type: MessageProcessingType.RespondWithMessage,
     });
 
+    if (light.state.alert === 'none') {
+      actions.push({
+        type: MessageActionType.BUTTON,
+        text: 'Alert Light',
+        msg: `/hue-light-state ${light.id} alert=true `,
+        msg_in_chat_window: true,
+        msg_processing_type: MessageProcessingType.RespondWithMessage,
+      });
+    } else {
+      actions.push({
+        type: MessageActionType.BUTTON,
+        text: 'Turn Off Alert',
+        msg: `/hue-light-state ${light.id} alert=false `,
+        msg_in_chat_window: true,
+        msg_processing_type: MessageProcessingType.RespondWithMessage,
+      });
+    }
+
+    if (light.state.on === true) {
+      actions.push({
+        type: MessageActionType.BUTTON,
+        text: 'Turn On Light',
+        msg: `/hue-light-state ${light.id} on=false `,
+        msg_in_chat_window: true,
+        msg_processing_type: MessageProcessingType.RespondWithMessage,
+      });
+    } else {
+      actions.push({
+        type: MessageActionType.BUTTON,
+        text: 'Turn On Light',
+        msg: `/hue-light-state ${light.id} on=true `,
+        msg_in_chat_window: true,
+        msg_processing_type: MessageProcessingType.RespondWithMessage,
+      });
+    }
+
     attachments.push({
       collapsed: lights.length > 5 ? true : false,
       color: '#0a5ed6',
