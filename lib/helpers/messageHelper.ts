@@ -187,7 +187,7 @@ export async function sendLights(lights, read: IRead, modify: IModify, user: IUs
     if (light.state.on === true) {
       actions.push({
         type: MessageActionType.BUTTON,
-        text: 'Turn On Light',
+        text: 'Turn Off Light',
         msg: `/hue-light-state ${light.id} on=false `,
         msg_in_chat_window: true,
         msg_processing_type: MessageProcessingType.RespondWithMessage,
