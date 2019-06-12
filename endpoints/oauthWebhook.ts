@@ -106,13 +106,13 @@ export class OAuthWebhookEndpooint extends ApiEndpoint {
       const token = content.access_token;
       const refreshToken = content.refresh_token;
 
-      let text = '';
+      let text = `*Token: *${token}`;
 
       if (tokenResponse.headers && tokenResponse.headers.date && content.access_token_expires_in && !isNaN(content.access_token_expires_in)) {
         let expiryDate: Date;
         expiryDate = new Date(tokenResponse.headers.date);
         expiryDate.setSeconds(expiryDate.getSeconds() + Number(content.access_token_expires_in));
-        text += `*Token expires *${expiryDate} _(${timeSince(expiryDate.toString())})_`;
+        text += `\n*Token expires *${expiryDate} _(${timeSince(expiryDate.toString())})_`;
 
         if (content.refresh_token_expires_in && !isNaN(content.refresh_token_expires_in)) {
           let refreshExpiryDate: Date;
@@ -130,6 +130,52 @@ export class OAuthWebhookEndpooint extends ApiEndpoint {
         return authAttempt.userName !== user.username;
       });
       await persistence.setAuthAttempts(currentAuthAttempts);
+
+      let whitelistId = await persistence.getUserBridgeWhitelistId(user);
+      if (!whitelistId) {
+        const linkButtonResponse = await http.put('https://api.meethue.com/bridge/0/config', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          data: {
+            linkbutton: true,
+          },
+        });
+        if (!linkButtonResponse || linkButtonResponse.statusCode !== 200) {
+          await msgHelper.sendNotification('Failed to whitelist this application with your bridge!', read, modify, user, room);
+          return this.success();
+        }
+        const whitelistResponse = await http.post('https://api.meethue.com/bridge', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          data: {
+            devicetype: deviceName,
+          },
+        });
+        if (!whitelistResponse || whitelistResponse.statusCode !== 200 || !whitelistResponse.content) {
+          await msgHelper.sendNotification('Failed to whitelist this application with your bridge!', read, modify, user, room);
+          return this.success();
+        }
+        const whitelistResponseContent = JSON.parse(whitelistResponse.content);
+        if (!Array.isArray(whitelistResponseContent) || whitelistResponseContent.length === 0) {
+          await msgHelper.sendNotification('Failed to whitelist this application with your bridge!', read, modify, user, room);
+          return this.success();
+        }
+        if (!whitelistResponseContent[0] || !whitelistResponseContent[0].success || !whitelistResponseContent[0].success.username) {
+          await msgHelper.sendNotification('Failed to whitelist this application with your bridge!', read, modify, user, room);
+          return this.success();
+        }
+        whitelistId = whitelistResponseContent[0].success.username;
+        if (!whitelistId) {
+          await msgHelper.sendNotification('Failed to whitelist this application with your bridge!', read, modify, user, room);
+          return this.success();
+        }
+        await persistence.setUserBridgeWhitelistId(whitelistId, user);
+        text += `\n*Whitelist Id: *${whitelistId}`;
+      }
 
       await msgHelper.sendNotificationMultipleAttachments([
         {

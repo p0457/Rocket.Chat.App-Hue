@@ -16,5 +16,9 @@
   "slashcommand_params": "",
   "slashcommand_description": "Shows all Hue App commands",
   "slashcommand_login_params": "",
-  "slashcommand_login_description": "Login to Hue"
+  "slashcommand_login_description": "Login to Hue",
+  "slashcommand_lights_params": "",
+  "slashcommand_lights_description": "View your Lights",
+  "slashcommand_lightstate_params": "[ID,ID] (on=true) (bri=254) (hue=65535) sat=(254) (cie=0.5:0.4) (alert=false)",
+  "slashcommand_lightstate_description": "Change Light state"
 }

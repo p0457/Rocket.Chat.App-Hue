@@ -37,6 +37,22 @@ export class AppPersistence {
     return result ? (result as any).token : undefined;
   }
 
+  public async setUserBridgeWhitelistId(id: string, user: IUser): Promise<void> {
+    const userAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.USER, user.id);
+    const typeAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, 'hue-bridge-whitelist');
+
+    await this.persistence.updateByAssociations([userAssociation, typeAssociation], { id }, true);
+  }
+
+  public async getUserBridgeWhitelistId(user: IUser): Promise<string | undefined> {
+    const userAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.USER, user.id);
+    const typeAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, 'hue-bridge-whitelist');
+
+    const [result] = await this.persistenceRead.readByAssociations([userAssociation, typeAssociation]);
+
+    return result ? (result as any).id : undefined;
+  }
+
   public async setAuthAttempts(authObj): Promise<void> {
     authObj = JSON.stringify(authObj);
     const miscAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, 'hue-authattempt');

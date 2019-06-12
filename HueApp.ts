@@ -6,6 +6,8 @@ import { App } from '@rocket.chat/apps-engine/definition/App';
 import { IAppInfo } from '@rocket.chat/apps-engine/definition/metadata';
 import { SettingType } from '@rocket.chat/apps-engine/definition/settings';
 import { HueCommand } from './commands/HueCommand';
+import { HueLightsCommand } from './commands/HueLightsCommand';
+import { HueLightStateCommand } from './commands/HueLightStateCommand';
 import { HueLoginCommand } from './commands/HueLoginCommand';
 import { OAuthWebhookEndpooint } from './endpoints/oauthWebhook';
 
@@ -93,5 +95,7 @@ export class HueApp extends App {
 
       await configuration.slashCommands.provideSlashCommand(new HueCommand(this));
       await configuration.slashCommands.provideSlashCommand(new HueLoginCommand(this));
+      await configuration.slashCommands.provideSlashCommand(new HueLightsCommand(this));
+      await configuration.slashCommands.provideSlashCommand(new HueLightStateCommand(this));
     }
 }
