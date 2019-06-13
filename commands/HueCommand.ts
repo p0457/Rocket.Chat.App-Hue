@@ -25,7 +25,7 @@ export class HueCommand implements ISlashCommand {
       }
     }
 
-    text += '\n\n_For choosing hex colors, this website is a great option: http://colorpicker.me';
+    text += '\n\n_For choosing hex colors, this website is a great option: http://colorpicker.me_';
 
     await msgHelper.sendNotificationSingleAttachment({
       collapsed: false,

@@ -6,23 +6,21 @@ import { uuidv4 } from '../lib/helpers/guidCreator';
 import * as msgHelper from '../lib/helpers/messageHelper';
 import { AppPersistence } from '../lib/persistence';
 
-export class HueLightsCommand implements ISlashCommand {
-  public command = 'hue-lights';
-  public i18nParamsExample = 'slashcommand_lights_params';
-  public i18nDescription = 'slashcommand_lights_description';
+export class HueGroupCommand implements ISlashCommand {
+  public command = 'hue-group';
+  public i18nParamsExample = 'slashcommand_group_params';
+  public i18nDescription = 'slashcommand_group_description';
   public providesPreview = false;
 
   public constructor(private readonly app: HueApp) {}
 
   public async executor(context: SlashCommandContext, read: IRead, modify: IModify, http: IHttp, persis: IPersistence): Promise<void> {
-    const args = context.getArguments();
-    await args.forEach(async (arg) => {
-      const argAsNumber = Number(arg);
-      if (isNaN(argAsNumber)) {
-        await msgHelper.sendUsage(read, modify, context.getSender(), context.getRoom(), this.command, 'Light Ids must be a number!');
-        return;
-      }
-    });
+    const groupIdOrName = context.getArguments().join(' ');
+
+    if (!groupIdOrName) {
+      await msgHelper.sendUsage(read, modify, context.getSender(), context.getRoom(), this.command, 'Group Id or Name must be provided!');
+      return;
+    }
 
     const persistence = new AppPersistence(persis, read.getPersistenceReader());
 
@@ -37,40 +35,40 @@ export class HueLightsCommand implements ISlashCommand {
       return;
     }
 
-    const url = `https://api.meethue.com/bridge/${whitelistId}/lights`;
+    const url = `https://api.meethue.com/bridge/${whitelistId}/groups`;
 
-    const lightsResponse = await http.get(url, {
+    const groupsResponse = await http.get(url, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
 
-    if (lightsResponse.statusCode === 401) {
+    if (groupsResponse.statusCode === 401) {
       await msgHelper.sendTokenExpired(read, modify, context.getSender(), context.getRoom());
       return;
     }
-    if (!lightsResponse || !lightsResponse.content || lightsResponse.statusCode !== 200) {
+    if (!groupsResponse || !groupsResponse.content || groupsResponse.statusCode !== 200) {
       await msgHelper.sendNotification('Failed to parse response!', read, modify, context.getSender(), context.getRoom());
       return;
     }
-    const content = JSON.parse(lightsResponse.content);
+    const content = JSON.parse(groupsResponse.content);
     if (!content) {
       await msgHelper.sendNotification('Failed to parse response!', read, modify, context.getSender(), context.getRoom());
       return;
     }
 
-    const lights = new Array();
+    const groups = new Array();
     for (const p in content) {
       if (content.hasOwnProperty(p)) {
-        if (args.length === 0 || args.includes(p.toString())) {
-          const newLightObj = content[p];
-          newLightObj.id = p;
-          lights.push(newLightObj);
+        if (p === groupIdOrName || content[p].name.toLowerCase().indexOf(groupIdOrName.toLowerCase().trim()) !== -1) {
+          const newGroupObj = content[p];
+          newGroupObj.id = p;
+          groups.push(newGroupObj);
         }
       }
     }
 
-    await msgHelper.sendLights(lights, read, modify, context.getSender(), context.getRoom());
+    await msgHelper.sendGroups(groups, read, modify, context.getSender(), context.getRoom());
     return;
   }
 }

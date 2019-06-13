@@ -217,3 +217,66 @@ export async function sendLights(lights, read: IRead, modify: IModify, user: IUs
 
   await sendNotificationMultipleAttachments(attachments, read, modify, user, room);
 }
+
+export async function sendGroups(groups, read: IRead, modify: IModify, user: IUser, room: IRoom): Promise<void> {
+  const attachments = new Array<IMessageAttachment>();
+  // Initial attachment for results count
+  const resultAttachmentActions = new Array<IMessageAction>();
+  attachments.push({
+    collapsed: false,
+    color: '#00CE00',
+    title: {
+      value: `Results (${groups.length})`,
+    },
+    actions: resultAttachmentActions,
+    actionButtonsAlignment: MessageActionButtonsAlignment.HORIZONTAL,
+  });
+
+  groups.forEach((group) => {
+    const actions = new Array<IMessageAction>();
+
+    if (group.state.any_on === true) {
+      actions.push({
+        type: MessageActionType.BUTTON,
+        text: 'Turn All Off',
+        msg: `/hue-group-state ${group.id} on=false`,
+        msg_in_chat_window: true,
+        msg_processing_type: MessageProcessingType.RespondWithMessage,
+      });
+    } else {
+      actions.push({
+        type: MessageActionType.BUTTON,
+        text: 'Turn All On',
+        msg: `/hue-group-state ${group.id} on=true`,
+        msg_in_chat_window: true,
+        msg_processing_type: MessageProcessingType.RespondWithMessage,
+      });
+    }
+    actions.push({
+      type: MessageActionType.BUTTON,
+      text: 'Alert All',
+      msg: `/hue-group-state ${group.id} alert=true`,
+      msg_in_chat_window: true,
+      msg_processing_type: MessageProcessingType.RespondWithMessage,
+    });
+    actions.push({
+      type: MessageActionType.BUTTON,
+      text: 'Get Lights',
+      msg: `/hue-lights ${group.lights.join(' ')}`,
+      msg_in_chat_window: true,
+      msg_processing_type: MessageProcessingType.RespondWithMessage,
+    });
+
+    attachments.push({
+      collapsed: groups.length > 5 ? true : false,
+      color: '#0a5ed6',
+      title: {
+        value: `${group.name} (${group.type})`,
+      },
+      actions,
+      actionButtonsAlignment: MessageActionButtonsAlignment.HORIZONTAL,
+    });
+  });
+
+  await sendNotificationMultipleAttachments(attachments, read, modify, user, room);
+}

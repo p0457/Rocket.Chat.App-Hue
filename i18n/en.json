@@ -17,8 +17,14 @@
   "slashcommand_description": "Shows all Hue App commands",
   "slashcommand_login_params": "",
   "slashcommand_login_description": "Login to Hue",
-  "slashcommand_lights_params": "",
+  "slashcommand_lights_params": "(ID,ID)",
   "slashcommand_lights_description": "View your Lights",
   "slashcommand_lightstate_params": "[ID,ID] (on=true) (bri=254) (color=#ff0000) (hue=65535) (sat=254) (ct=500) (cie=0.5:0.4) (alert=false)",
-  "slashcommand_lightstate_description": "Change Light state"
+  "slashcommand_lightstate_description": "Change Light state",
+  "slashcommand_groups_params": "",
+  "slashcommand_groups_description": "View your Light Groups",
+  "slashcommand_groupstate_params": "[ID,ID] (on=true) (bri=254) (color=#ff0000) (hue=65535) (sat=254) (ct=500) (cie=0.5:0.4) (alert=false)",
+  "slashcommand_groupstate_description": "Change Group state",
+  "slashcommand_group_params": "[ID OR NAME]",
+  "slashcommand_group_description": "Search for Group (name can be partial)"
 }

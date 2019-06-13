@@ -6,6 +6,9 @@ import { App } from '@rocket.chat/apps-engine/definition/App';
 import { IAppInfo } from '@rocket.chat/apps-engine/definition/metadata';
 import { SettingType } from '@rocket.chat/apps-engine/definition/settings';
 import { HueCommand } from './commands/HueCommand';
+import { HueGroupCommand } from './commands/HueGroupCommand';
+import { HueGroupsCommand } from './commands/HueGroupsCommand';
+import { HueGroupStateCommand } from './commands/HueGroupStateCommand';
 import { HueLightsCommand } from './commands/HueLightsCommand';
 import { HueLightStateCommand } from './commands/HueLightStateCommand';
 import { HueLoginCommand } from './commands/HueLoginCommand';
@@ -97,5 +100,8 @@ export class HueApp extends App {
       await configuration.slashCommands.provideSlashCommand(new HueLoginCommand(this));
       await configuration.slashCommands.provideSlashCommand(new HueLightsCommand(this));
       await configuration.slashCommands.provideSlashCommand(new HueLightStateCommand(this));
+      await configuration.slashCommands.provideSlashCommand(new HueGroupsCommand(this));
+      await configuration.slashCommands.provideSlashCommand(new HueGroupStateCommand(this));
+      await configuration.slashCommands.provideSlashCommand(new HueGroupCommand(this));
     }
 }

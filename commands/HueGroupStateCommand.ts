@@ -7,10 +7,10 @@ import { uuidv4 } from '../lib/helpers/guidCreator';
 import * as msgHelper from '../lib/helpers/messageHelper';
 import { AppPersistence } from '../lib/persistence';
 
-export class HueLightStateCommand implements ISlashCommand {
-  public command = 'hue-light-state';
-  public i18nParamsExample = 'slashcommand_lightstate_params';
-  public i18nDescription = 'slashcommand_lightstate_description';
+export class HueGroupStateCommand implements ISlashCommand {
+  public command = 'hue-group-state';
+  public i18nParamsExample = 'slashcommand_groupstate_params';
+  public i18nDescription = 'slashcommand_groupstate_description';
   public providesPreview = false;
 
   public constructor(private readonly app: HueApp) {}
@@ -22,27 +22,27 @@ export class HueLightStateCommand implements ISlashCommand {
       return;
     }
 
-    // Check light ids for numbers
-    const lightIds = new Array();
-    const lightIdsArg = args[0];
-    const lightIdsArgItems = lightIdsArg.split(',');
-    if (lightIdsArgItems.length === 0) {
-      await msgHelper.sendUsage(read, modify, context.getSender(), context.getRoom(), this.command, 'Must specify at least one light id!');
+    // Check group ids for numbers
+    const groupIds = new Array();
+    const groupIdsArg = args[0];
+    const groupIdsArgItems = groupIdsArg.split(',');
+    if (groupIdsArgItems.length === 0) {
+      await msgHelper.sendUsage(read, modify, context.getSender(), context.getRoom(), this.command, 'Must specify at least one group id!');
       return;
     }
-    await lightIdsArgItems.forEach(async (lightIdArg) => {
-      const lightArgTemp = Number(lightIdArg.trim());
-      if (isNaN(lightArgTemp)) {
-        await msgHelper.sendUsage(read, modify, context.getSender(), context.getRoom(), this.command, 'One or more light ids were invalid!');
+    await groupIdsArgItems.forEach(async (groupIdArg) => {
+      const groupArgTemp = Number(groupIdArg.trim());
+      if (isNaN(groupArgTemp)) {
+        await msgHelper.sendUsage(read, modify, context.getSender(), context.getRoom(), this.command, 'One or more group ids were invalid!');
         return;
       } else {
-        lightIds.push(lightIdArg.toLowerCase().trim());
+        groupIds.push(groupIdArg.toLowerCase().trim());
       }
     });
 
     // Check the rest
-    const commandUsed = `/hue-light-state ${context.getArguments().join(' ')}`;
-    const stateModifiers = context.getArguments().join(' ').replace(`${lightIdsArg} `, '') + ' ';
+    const commandUsed = `/hue-group-state ${context.getArguments().join(' ')}`;
+    const stateModifiers = context.getArguments().join(' ').replace(`${groupIdsArg} `, '') + ' ';
 
     const onRegex = /on=(.*?) /gm;
     const onRegexResult = onRegex.exec(stateModifiers);
@@ -254,15 +254,15 @@ export class HueLightStateCommand implements ISlashCommand {
       return;
     }
 
-    lightIds.forEach(async (lightId) => {
-      const url = `https://api.meethue.com/bridge/${whitelistId}/lights/${lightId}/state`;
+    groupIds.forEach(async (groupId) => {
+      const url = `https://api.meethue.com/bridge/${whitelistId}/groups/${groupId}/action`;
 
-      let lightResponse;
+      let groupResponse;
       let content;
 
       // Must turn on light first for some of these actions
       if (on !== undefined) {
-        lightResponse = await http.put(url, {
+        groupResponse = await http.put(url, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -271,50 +271,50 @@ export class HueLightStateCommand implements ISlashCommand {
           },
         });
 
-        if (lightResponse.statusCode === 401) {
+        if (groupResponse.statusCode === 401) {
           await msgHelper.sendTokenExpired(read, modify, context.getSender(), context.getRoom());
           return;
         }
-        if (!lightResponse || !lightResponse.content || lightResponse.statusCode !== 200) {
-          await msgHelper.sendNotification(`Failed to parse response for light id ${lightId}!`, read, modify, context.getSender(), context.getRoom());
+        if (!groupResponse || !groupResponse.content || groupResponse.statusCode !== 200) {
+          await msgHelper.sendNotification(`Failed to parse response for group id ${groupId}!`, read, modify, context.getSender(), context.getRoom());
           return;
         }
-        content = JSON.parse(lightResponse.content);
+        content = JSON.parse(groupResponse.content);
         if (!content) {
-          await msgHelper.sendNotification(`Failed to parse response for light id ${lightId}!`, read, modify, context.getSender(), context.getRoom());
+          await msgHelper.sendNotification(`Failed to parse response for group id ${groupId}!`, read, modify, context.getSender(), context.getRoom());
           return;
         }
         if (Array.isArray(content) && content[0].error !== undefined) {
-          console.log(`Error occurred for light id ${lightId}!`, content[0].error);
-          await msgHelper.sendNotification(`Error occurred for light id ${lightId}!`, read, modify, context.getSender(), context.getRoom());
+          console.log(`Error occurred for group id ${groupId}!`, content[0].error);
+          await msgHelper.sendNotification(`Error occurred for group id ${groupId}!`, read, modify, context.getSender(), context.getRoom());
           return;
         }
       }
 
       if (commandCount > 1) {
-        lightResponse = await http.put(url, {
+        groupResponse = await http.put(url, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
           data: payload,
         });
 
-        if (lightResponse.statusCode === 401) {
+        if (groupResponse.statusCode === 401) {
           await msgHelper.sendTokenExpired(read, modify, context.getSender(), context.getRoom());
           return;
         }
-        if (!lightResponse || !lightResponse.content || lightResponse.statusCode !== 200) {
-          await msgHelper.sendNotification(`Failed to parse response for light id ${lightId}!`, read, modify, context.getSender(), context.getRoom());
+        if (!groupResponse || !groupResponse.content || groupResponse.statusCode !== 200) {
+          await msgHelper.sendNotification(`Failed to parse response for group id ${groupId}!`, read, modify, context.getSender(), context.getRoom());
           return;
         }
-        content = JSON.parse(lightResponse.content);
+        content = JSON.parse(groupResponse.content);
         if (!content) {
-          await msgHelper.sendNotification(`Failed to parse response for light id ${lightId}!`, read, modify, context.getSender(), context.getRoom());
+          await msgHelper.sendNotification(`Failed to parse response for group id ${groupId}!`, read, modify, context.getSender(), context.getRoom());
           return;
         }
         if (Array.isArray(content) && content[0].error !== undefined) {
-          console.log(`Error occurred for light id ${lightId}!`, content[0].error);
-          await msgHelper.sendNotification(`Error occurred for light id ${lightId}!`, read, modify, context.getSender(), context.getRoom());
+          console.log(`Error occurred for group id ${groupId}!`, content[0].error);
+          await msgHelper.sendNotification(`Error occurred for group id ${groupId}!`, read, modify, context.getSender(), context.getRoom());
           return;
         }
       }
@@ -324,7 +324,7 @@ export class HueLightStateCommand implements ISlashCommand {
       collapsed: false,
       color: '#0a5ed6',
       title: {
-        value: 'Successfully updated lights!',
+        value: 'Successfully updated groups!',
       },
       actions: [
         {
@@ -336,8 +336,8 @@ export class HueLightStateCommand implements ISlashCommand {
         },
         {
           type: MessageActionType.BUTTON,
-          text: 'Get Lights',
-          msg: '/hue-lights ',
+          text: 'Get Groups',
+          msg: '/hue-groups ',
           msg_in_chat_window: true,
           msg_processing_type: MessageProcessingType.RespondWithMessage,
         },
