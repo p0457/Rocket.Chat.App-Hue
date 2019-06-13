@@ -2,10 +2,10 @@ import { IHttp, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/de
 import { MessageActionButtonsAlignment, MessageActionType, MessageProcessingType } from '@rocket.chat/apps-engine/definition/messages';
 import { ISlashCommand, SlashCommandContext } from '@rocket.chat/apps-engine/definition/slashcommands';
 import { HueApp } from '../HueApp';
+import { hexToRgb, rgb_to_cie } from '../lib/helpers/colorManager';
 import { uuidv4 } from '../lib/helpers/guidCreator';
 import * as msgHelper from '../lib/helpers/messageHelper';
 import { AppPersistence } from '../lib/persistence';
-import { hexToRgb, rgb_to_cie } from '../lib/helpers/colorManager';
 
 export class HueLightStateCommand implements ISlashCommand {
   public command = 'hue-light-state';

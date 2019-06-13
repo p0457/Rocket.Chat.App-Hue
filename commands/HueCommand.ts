@@ -25,6 +25,8 @@ export class HueCommand implements ISlashCommand {
       }
     }
 
+    text += '\n\n_For choosing hex colors, this website is a great option: http://colorpicker.me';
+
     await msgHelper.sendNotificationSingleAttachment({
       collapsed: false,
       color: '#e37200',
