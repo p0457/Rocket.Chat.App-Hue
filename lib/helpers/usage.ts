@@ -11,7 +11,7 @@ export default {
   },
   lightState: {
     command: 'hue-light-state',
-    usage: '`/hue-light-state [ID,ID] (on=true) (bri=254) (hue=65535) sat=(254) (cie=0.5:0.4) (alert=false)`',
+    usage: '`/hue-light-state [ID,ID] (on=true) (bri=254) (color=#ff0000) (hue=65535) (sat=254) (ct=500) (cie=0.5:0.4) (alert=false)`',
     description: 'Change Light state',
   },
 };

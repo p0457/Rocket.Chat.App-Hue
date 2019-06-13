@@ -1,10 +1,11 @@
 import { IHttp, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
-import { MessageActionType, MessageProcessingType, MessageActionButtonsAlignment } from '@rocket.chat/apps-engine/definition/messages';
+import { MessageActionButtonsAlignment, MessageActionType, MessageProcessingType } from '@rocket.chat/apps-engine/definition/messages';
 import { ISlashCommand, SlashCommandContext } from '@rocket.chat/apps-engine/definition/slashcommands';
 import { HueApp } from '../HueApp';
 import { uuidv4 } from '../lib/helpers/guidCreator';
 import * as msgHelper from '../lib/helpers/messageHelper';
 import { AppPersistence } from '../lib/persistence';
+import { hexToRgb, rgb_to_cie } from '../lib/helpers/colorManager';
 
 export class HueLightStateCommand implements ISlashCommand {
   public command = 'hue-light-state';
@@ -91,6 +92,19 @@ export class HueLightStateCommand implements ISlashCommand {
       return;
     }
 
+    const colorTempRegex = /ct=(.*?) /gm;
+    const colorTempRegexResult = colorTempRegex.exec(stateModifiers);
+    const colorTempText = colorTempRegexResult === null ? '' : colorTempRegexResult[1];
+    const colorTemp = (!isNaN(Number(colorTempText)) && colorTempText !== '') ? Number(colorTempText) : undefined;
+    if (colorTempText && colorTemp === undefined) {
+      await msgHelper.sendUsage(read, modify, context.getSender(), context.getRoom(), this.command, `Failed to parse 'ct' state value!`);
+      return;
+    }
+    if (colorTemp && (colorTemp > 500 || colorTemp < 153)) {
+      await msgHelper.sendUsage(read, modify, context.getSender(), context.getRoom(), this.command, `'ct' must be between 153 and 500!`);
+      return;
+    }
+
     const cieRegex = /cie=(.*?) /gm;
     const cieRegexResult = cieRegex.exec(stateModifiers);
     const cieText = cieRegexResult === null ? '' : cieRegexResult[1];
@@ -124,6 +138,19 @@ export class HueLightStateCommand implements ISlashCommand {
       return;
     }
 
+    const colorRegex = /color=(.*?) /gm;
+    const colorRegexResult = colorRegex.exec(stateModifiers);
+    const colorText = colorRegexResult === null ? '' : colorRegexResult[1];
+    const color = colorText;
+    if (colorText && color === undefined) {
+      await msgHelper.sendUsage(read, modify, context.getSender(), context.getRoom(), this.command, `Failed to parse 'ct' state value!`);
+      return;
+    }
+    if (!color.startsWith('#') || color.length !== 7) {
+      await msgHelper.sendUsage(read, modify, context.getSender(), context.getRoom(), this.command, `'color' must be a hex value starting with #!`);
+      return;
+    }
+
     const payload = {};
     let commandCount = 0;
     if (on !== undefined) {
@@ -143,7 +170,11 @@ export class HueLightStateCommand implements ISlashCommand {
       payload['hue'] = hue;
       commandCount++;
       if (on !== true) {
-        await msgHelper.sendUsage(read, modify, context.getSender(), context.getRoom(), this.command, `Must specify 'on=true' to modify brightness state!`);
+        await msgHelper.sendUsage(read, modify, context.getSender(), context.getRoom(), this.command, `Must specify 'on=true' to modify hue state!`);
+        return;
+      }
+      if (color) {
+        await msgHelper.sendUsage(read, modify, context.getSender(), context.getRoom(), this.command, `Cannot specify color with other color properties!`);
         return;
       }
     }
@@ -151,11 +182,53 @@ export class HueLightStateCommand implements ISlashCommand {
       // tslint:disable-next-line:no-string-literal
       payload['sat'] = saturation;
       commandCount++;
+      if (on !== true) {
+        await msgHelper.sendUsage(read, modify, context.getSender(), context.getRoom(), this.command, `Must specify 'on=true' to modify saturation state!`);
+        return;
+      }
+      if (color) {
+        await msgHelper.sendUsage(read, modify, context.getSender(), context.getRoom(), this.command, `Cannot specify color with other color properties!`);
+        return;
+      }
+    }
+    if (saturation !== undefined) {
+      // tslint:disable-next-line:no-string-literal
+      payload['ct'] = colorTemp;
+      commandCount++;
+      if (on !== true) {
+        await msgHelper.sendUsage(read, modify, context.getSender(), context.getRoom(), this.command, `Must specify 'on=true' to modify color temp state!`);
+        return;
+      }
+      if (color) {
+        await msgHelper.sendUsage(read, modify, context.getSender(), context.getRoom(), this.command, `Cannot specify color with other color properties!`);
+        return;
+      }
     }
     if (cie !== undefined) {
       // tslint:disable-next-line:no-string-literal
       payload['xy'] = cie;
       commandCount++;
+      if (on !== true) {
+        await msgHelper.sendUsage(read, modify, context.getSender(), context.getRoom(), this.command, `Must specify 'on=true' to modify CIE color state!`);
+        return;
+      }
+      if (color) {
+        await msgHelper.sendUsage(read, modify, context.getSender(), context.getRoom(), this.command, `Cannot specify color with other color properties!`);
+        return;
+      }
+    }
+    if (color !== undefined) {
+      commandCount++;
+      const rgb = hexToRgb(color);
+      if (rgb && Array.isArray(rgb) && rgb.length === 3) {
+        const cieCoordinates = rgb_to_cie(rgb[0], rgb[1], rgb[2]);
+        // tslint:disable-next-line:no-string-literal
+        payload['xy'] = cieCoordinates;
+      }
+      if (on !== true) {
+        await msgHelper.sendUsage(read, modify, context.getSender(), context.getRoom(), this.command, `Must specify 'on=true' to modify CIE color state!`);
+        return;
+      }
     }
     if (alert !== undefined) {
       // tslint:disable-next-line:no-string-literal
