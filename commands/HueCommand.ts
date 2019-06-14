@@ -27,6 +27,8 @@ export class HueCommand implements ISlashCommand {
 
     text += '\n\n_For choosing hex colors, this website is a great option: http://colorpicker.me_';
 
+    text += '\n\nThis application is not created by, affiliated with, or supported by Philips Hue.';
+
     await msgHelper.sendNotificationSingleAttachment({
       collapsed: false,
       color: '#e37200',
