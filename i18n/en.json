@@ -26,5 +26,9 @@
   "slashcommand_groupstate_params": "[ID,ID] (on=true) (bri=254) (color=#ff0000) (hue=65535) (sat=254) (ct=500) (cie=0.5:0.4) (alert=false)",
   "slashcommand_groupstate_description": "Change Group state",
   "slashcommand_group_params": "[ID OR NAME]",
-  "slashcommand_group_description": "Search for Group (name can be partial)"
+  "slashcommand_group_description": "Search for Group (name can be partial)",
+  "slashcommand_scenes_params": "",
+  "slashcommand_scenes_description": "View your Scenes",
+  "slashcommand_scene_params": "[SCENE ID] (GROUP ID)",
+  "slashcommand_scene_description": "Set a scene (set group id to recall the scene for a specific group only, default is group 0)"
 }

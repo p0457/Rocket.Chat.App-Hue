@@ -280,3 +280,50 @@ export async function sendGroups(groups, read: IRead, modify: IModify, user: IUs
 
   await sendNotificationMultipleAttachments(attachments, read, modify, user, room);
 }
+
+export async function sendScenes(scenes, read: IRead, modify: IModify, user: IUser, room: IRoom): Promise<void> {
+  const attachments = new Array<IMessageAttachment>();
+  // Initial attachment for results count
+  const resultAttachmentActions = new Array<IMessageAction>();
+  attachments.push({
+    collapsed: false,
+    color: '#00CE00',
+    title: {
+      value: `Results (${scenes.length})`,
+    },
+    actions: resultAttachmentActions,
+    actionButtonsAlignment: MessageActionButtonsAlignment.HORIZONTAL,
+  });
+
+  scenes.forEach((scene) => {
+    const actions = new Array<IMessageAction>();
+
+    actions.push({
+      type: MessageActionType.BUTTON,
+      text: 'Set Scene',
+      msg: `/hue-scene ${scene.id}`,
+      msg_in_chat_window: true,
+      msg_processing_type: MessageProcessingType.RespondWithMessage,
+    });
+
+    actions.push({
+      type: MessageActionType.BUTTON,
+      text: 'Get Lights',
+      msg: `/hue-lights ${scene.lights.join(' ')}`,
+      msg_in_chat_window: true,
+      msg_processing_type: MessageProcessingType.RespondWithMessage,
+    });
+
+    attachments.push({
+      collapsed: scene.length > 5 ? true : false,
+      color: '#0a5ed6',
+      title: {
+        value: `${scene.name}`,
+      },
+      actions,
+      actionButtonsAlignment: MessageActionButtonsAlignment.HORIZONTAL,
+    });
+  });
+
+  await sendNotificationMultipleAttachments(attachments, read, modify, user, room);
+}

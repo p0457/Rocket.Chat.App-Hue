@@ -29,4 +29,14 @@ export default {
     usage: '`/hue-group [ID OR NAME]`',
     description: 'Search for Group (name can be partial)',
   },
+  scenes: {
+    command: 'hue-scenes',
+    usage: '`/hue-scenes`',
+    description: 'View your Scenes',
+  },
+  scene: {
+    command: 'hue-scene',
+    usage: '`/hue-scene [SCENE ID] (GROUP ID)`',
+    description: 'Set a scene',
+  },
 };

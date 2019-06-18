@@ -12,6 +12,8 @@ import { HueGroupStateCommand } from './commands/HueGroupStateCommand';
 import { HueLightsCommand } from './commands/HueLightsCommand';
 import { HueLightStateCommand } from './commands/HueLightStateCommand';
 import { HueLoginCommand } from './commands/HueLoginCommand';
+import { HueSceneCommand } from './commands/HueSceneCommand';
+import { HueScenesCommand } from './commands/HueScenesCommand';
 import { OAuthWebhookEndpooint } from './endpoints/oauthWebhook';
 
 export class HueApp extends App {
@@ -103,5 +105,7 @@ export class HueApp extends App {
       await configuration.slashCommands.provideSlashCommand(new HueGroupsCommand(this));
       await configuration.slashCommands.provideSlashCommand(new HueGroupStateCommand(this));
       await configuration.slashCommands.provideSlashCommand(new HueGroupCommand(this));
+      await configuration.slashCommands.provideSlashCommand(new HueScenesCommand(this));
+      await configuration.slashCommands.provideSlashCommand(new HueSceneCommand(this));
     }
 }
