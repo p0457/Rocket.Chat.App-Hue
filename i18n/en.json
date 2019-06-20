@@ -27,8 +27,8 @@
   "slashcommand_groupstate_description": "Change Group state",
   "slashcommand_group_params": "[ID OR NAME]",
   "slashcommand_group_description": "Search for Group (name can be partial)",
-  "slashcommand_scenes_params": "",
-  "slashcommand_scenes_description": "View your Scenes",
+  "slashcommand_scenes_params": "(all)",
+  "slashcommand_scenes_description": "View your Scenes (use all to return \"unlocked\" scenes)",
   "slashcommand_scene_params": "[SCENE ID] (GROUP ID)",
   "slashcommand_scene_description": "Set a scene (set group id to recall the scene for a specific group only, default is group 0)"
 }

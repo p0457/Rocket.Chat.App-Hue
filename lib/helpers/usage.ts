@@ -31,8 +31,8 @@ export default {
   },
   scenes: {
     command: 'hue-scenes',
-    usage: '`/hue-scenes`',
-    description: 'View your Scenes',
+    usage: '`/hue-scenes (all)`',
+    description: 'View your Scenes (use all to return "unlocked" scenes)',
   },
   scene: {
     command: 'hue-scene',

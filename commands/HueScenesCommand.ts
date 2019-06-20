@@ -15,6 +15,12 @@ export class HueScenesCommand implements ISlashCommand {
   public constructor(private readonly app: HueApp) {}
 
   public async executor(context: SlashCommandContext, read: IRead, modify: IModify, http: IHttp, persis: IPersistence): Promise<void> {
+    const [allArg] = context.getArguments();
+    let all = false;
+    if (allArg && allArg === 'all') {
+      all = true;
+    }
+
     const persistence = new AppPersistence(persis, read.getPersistenceReader());
 
     const token = await persistence.getUserToken(context.getSender());
@@ -53,9 +59,11 @@ export class HueScenesCommand implements ISlashCommand {
     const scenes = new Array();
     for (const p in content) {
       if (content.hasOwnProperty(p)) {
-        const newSceneObj = content[p];
-        newSceneObj.id = p;
-        scenes.push(newSceneObj);
+        if (all === true || content[p].locked === true) {
+          const newSceneObj = content[p];
+          newSceneObj.id = p;
+          scenes.push(newSceneObj);
+        }
       }
     }
 

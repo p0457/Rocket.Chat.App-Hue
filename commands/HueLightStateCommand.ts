@@ -220,10 +220,14 @@ export class HueLightStateCommand implements ISlashCommand {
     if (color !== undefined) {
       commandCount++;
       const rgb = hexToRgb(color);
-      if (rgb && Array.isArray(rgb) && rgb.length === 3) {
-        const cieCoordinates = rgb_to_cie(rgb[0], rgb[1], rgb[2]);
+      if (rgb) {
+        const cieCoordinates = rgb_to_cie(rgb.r, rgb.g, rgb.b);
         // tslint:disable-next-line:no-string-literal
         payload['xy'] = cieCoordinates;
+      } else {
+        console.log('Failed to derive color!', color, rgb);
+        await msgHelper.sendNotification('Failed to derive color `' + color + '` !', read, modify, context.getSender(), context.getRoom());
+        return;
       }
       if (on !== true) {
         await msgHelper.sendUsage(read, modify, context.getSender(), context.getRoom(), this.command, `Must specify 'on=true' to modify CIE color state!`);
@@ -290,6 +294,8 @@ export class HueLightStateCommand implements ISlashCommand {
           return;
         }
       }
+
+
 
       if (commandCount > 1) {
         lightResponse = await http.put(url, {
