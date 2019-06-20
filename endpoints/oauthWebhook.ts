@@ -174,8 +174,8 @@ export class OAuthWebhookEndpooint extends ApiEndpoint {
           return this.success();
         }
         await persistence.setUserBridgeWhitelistId(whitelistId, user);
-        text += `\n*Whitelist Id: *${whitelistId}`;
       }
+      text += `\n*Whitelist Id: *${whitelistId}`;
 
       await msgHelper.sendNotificationMultipleAttachments([
         {
