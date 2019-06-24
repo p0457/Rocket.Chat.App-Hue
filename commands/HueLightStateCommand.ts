@@ -295,8 +295,6 @@ export class HueLightStateCommand implements ISlashCommand {
         }
       }
 
-
-
       if (commandCount > 1) {
         lightResponse = await http.put(url, {
           headers: {
